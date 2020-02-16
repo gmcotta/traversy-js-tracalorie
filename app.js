@@ -1,3 +1,29 @@
+const StorageController = (() => {
+  return {
+    storeItem: item => {
+      let items;
+      if (localStorage.getItem('items') === null) {
+        items = [];
+      } else {
+        items = JSON.parse(localStorage.getItem('items'));
+      };
+      items.push(item);
+      localStorage.setItem('items', JSON.stringify(items));
+    },
+    getItemsFromStorage: () => {
+      let items;
+
+      if (localStorage.getItem('items') === null) {
+        items = [];
+      } else {
+        items = JSON.parse(localStorage.getItem('items'));
+      }
+
+      return items;
+    }
+  }
+})();
+
 // Item controller
 const ItemController = (() => {
   const Item = function(id, name, calories) {
@@ -7,11 +33,7 @@ const ItemController = (() => {
   }
 
   const data = {
-    items: [
-      // { id: 1, name: 'Steak Dinner', calories: 1200 },
-      // { id: 2, name: 'Cookies', calories: 400 },
-      // { id: 3, name: 'Eggs', calories: 300 },
-    ],
+    items: StorageController.getItemsFromStorage(),
     currentItem: null,
     totalCalories: 0
   }
@@ -229,7 +251,7 @@ const UIController = (() => {
 
 
 // App controller
-const App = ((ItemController, UIController) => {
+const App = ((StorageController, ItemController, UIController) => {
 
   const loadEventListeners = () => {
     const UISelectors = UIController.getSelectors();
@@ -288,6 +310,8 @@ const App = ((ItemController, UIController) => {
 
       const totalCalories = ItemController.getTotalCalories();
       UIController.showTotalCalories(totalCalories);
+
+      StorageController.storeItem(newItem);
 
       UIController.clearInput();
     }
@@ -350,6 +374,6 @@ const App = ((ItemController, UIController) => {
       loadEventListeners();
     }
   };
-})(ItemController, UIController);
+})(StorageController, ItemController, UIController);
 
 App.init();
