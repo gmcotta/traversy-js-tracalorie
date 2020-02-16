@@ -1,1 +1,1 @@
-Simple project using vanilla JavaScript and Module Pattern to create a meal and calories tracker. 
+Simple project using vanilla JavaScript, Module Pattern, MaterializeCSS and Font Awesome to create a meal and calories tracker. 
