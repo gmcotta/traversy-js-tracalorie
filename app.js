@@ -8,9 +8,9 @@ const ItemController = (() => {
 
   const data = {
     items: [
-      { id: 1, name: 'Steak Dinner', calories: 1200 },
-      { id: 2, name: 'Cookies', calories: 400 },
-      { id: 3, name: 'Eggs', calories: 300 },
+      // { id: 1, name: 'Steak Dinner', calories: 1200 },
+      // { id: 2, name: 'Cookies', calories: 400 },
+      // { id: 3, name: 'Eggs', calories: 300 },
     ],
     currentItem: null,
     totalCalories: 0
@@ -24,7 +24,7 @@ const ItemController = (() => {
       return data;
     },
     addItem: (name, calories) => {
-      console.log(name, calories);
+      // console.log(name, calories);
       let id;
       if (data.items.length > 0) {
         id = data.items[data.items.length -1].id + 1;
@@ -78,6 +78,32 @@ const UIController = (() => {
         name: document.querySelector(UISelectors.itemNameInput).value,
         calories: document.querySelector(UISelectors.itemCaloriesInput).value
       }
+    },
+    addListItem: item => {
+      document.querySelector(UISelectors.itemList).style.display = 'block';
+
+      const li = document.createElement('li');
+      
+      li.className = 'collection-item';
+      
+      li.id = `item-${item.id}`;
+
+      li.innerHTML = `
+        <strong>${item.name}: </strong> <em>${item.calories} Calories</em>
+        <a href="#" class="secondary-content">
+          <i class="edit-item fa fa-pencil"></i>
+        </a>
+      `;
+
+      document.querySelector(UISelectors.itemList)
+        .insertAdjacentElement('beforeend', li);
+    },
+    clearInput: () => {
+      document.querySelector(UISelectors.itemNameInput).value = '';
+      document.querySelector(UISelectors.itemCaloriesInput).value = '';
+    },
+    hideList: () => {
+      document.querySelector(UISelectors.itemList).style.display = 'none';
     }
   };
 })();
@@ -101,7 +127,10 @@ const App = ((ItemController, UIController) => {
     
     if (input.name !== '' && input.calories !== '') {
       const newItem = ItemController.addItem(input.name, input.calories);
-      console.log(newItem);
+      // console.log(newItem);
+      UIController.addListItem(newItem);
+
+      UIController.clearInput();
     }
   }
   
@@ -109,8 +138,13 @@ const App = ((ItemController, UIController) => {
     init: () => {
       console.log('Initializing app...');
       const items = ItemController.getItems();
+
+      if (items.length > 0) {
+        UIController.populateItemList(items);
+      } else {
+        UIController.hideList();
+      }
       
-      UIController.populateItemList(items);
 
       loadEventListeners();
     }
