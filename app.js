@@ -38,7 +38,18 @@ const ItemController = (() => {
       data.items.push(newItem);
 
       return newItem;
-    }
+    },
+    getTotalCalories: () => {
+      let total = 0;
+
+      data.items.forEach(item => {
+        total += item.calories;
+      });
+
+      data.totalCalories = total;
+
+      return data.totalCalories;
+    },
   };
 })();
 
@@ -50,7 +61,8 @@ const UIController = (() => {
     itemList: '#item-list',
     addBtn: '.add-btn',
     itemNameInput: '#item-name',
-    itemCaloriesInput: '#item-calories' 
+    itemCaloriesInput: '#item-calories',
+    totalCalories: '.total-calories', 
   };
 
   return {
@@ -104,7 +116,11 @@ const UIController = (() => {
     },
     hideList: () => {
       document.querySelector(UISelectors.itemList).style.display = 'none';
-    }
+    },
+    showTotalCalories: totalCalories => {
+      document.querySelector(UISelectors.totalCalories)
+        .textContent = totalCalories;
+    },
   };
 })();
 
@@ -130,6 +146,9 @@ const App = ((ItemController, UIController) => {
       // console.log(newItem);
       UIController.addListItem(newItem);
 
+      const totalCalories = ItemController.getTotalCalories();
+      UIController.showTotalCalories(totalCalories);
+
       UIController.clearInput();
     }
   }
@@ -145,6 +164,8 @@ const App = ((ItemController, UIController) => {
         UIController.hideList();
       }
       
+      const totalCalories = ItemController.getTotalCalories();
+      UIController.showTotalCalories(totalCalories);
 
       loadEventListeners();
     }
