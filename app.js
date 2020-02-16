@@ -70,7 +70,19 @@ const ItemController = (() => {
       foundItem.calories = calories;
 
       return foundItem;
-    }
+    },
+    deleteItem: id => {
+      let ids = data.items.map(item => {
+        return item.id;
+      });
+
+      const index = ids.indexOf(id);
+
+      data.items.splice(index, 1);
+    },
+    clearAllItems: () => {
+      data.items = [];
+    },
   };
 })();
 
@@ -85,6 +97,7 @@ const UIController = (() => {
     updateBtn: '.update-btn',
     deleteBtn: '.delete-btn',
     backBtn: '.back-btn',
+    clearBtn: '.clear-btn',
     itemNameInput: '#item-name',
     itemCaloriesInput: '#item-calories',
     totalCalories: '.total-calories', 
@@ -189,6 +202,26 @@ const UIController = (() => {
       UIController.showTotalCalories(totalCalories);
 
       UIController.clearEditState();
+    },
+    deleteListItem: id => {
+      const itemId = `#item-${id}`;
+      const item = document.querySelector(itemId);
+      
+      item.remove();
+
+      const totalCalories = ItemController.getTotalCalories();
+      UIController.showTotalCalories(totalCalories);
+
+      UIController.clearEditState();
+    },
+    clearItemList: () => {
+      let listItems = document.querySelectorAll(UISelectors.listItems);
+
+      listItems = Array.from(listItems);
+
+      listItems.forEach(item => {
+        item.remove();
+      });
     }
   };
 })();
@@ -217,6 +250,15 @@ const App = ((ItemController, UIController) => {
 
     document.querySelector(UISelectors.updateBtn).addEventListener(
       'click', itemUpdateSubmit);
+
+    document.querySelector(UISelectors.backBtn).addEventListener(
+      'click', clearEditState);
+
+    document.querySelector(UISelectors.deleteBtn).addEventListener(
+      'click', itemDeleteSubmit);
+    
+    document.querySelector(UISelectors.clearBtn).addEventListener(
+      'click', clearAllItemsClick);
   };
 
   const itemEditClick = evt => {
@@ -242,7 +284,6 @@ const App = ((ItemController, UIController) => {
     
     if (input.name !== '' && input.calories !== '') {
       const newItem = ItemController.addItem(input.name, input.calories);
-      // console.log(newItem);
       UIController.addListItem(newItem);
 
       const totalCalories = ItemController.getTotalCalories();
@@ -258,8 +299,36 @@ const App = ((ItemController, UIController) => {
     const input = UIController.getItemInput();
 
     const updatedItem = ItemController.updateItem(input.name, input.calories);
-
     UIController.updateListItem(updatedItem);
+  }
+
+  const itemDeleteSubmit = evt => {
+    evt.preventDefault();
+
+    const currentItem = ItemController.getCurrentItem();
+
+    ItemController.deleteItem(currentItem.id);
+    UIController.deleteListItem(currentItem.id);
+  }
+
+  const clearEditState = evt => {
+    evt.preventDefault();
+
+    UIController.clearEditState();
+  }
+
+  const clearAllItemsClick = evt => {
+    evt.preventDefault();
+
+    ItemController.clearAllItems();
+    UIController.clearItemList();
+
+    const totalCalories = ItemController.getTotalCalories();
+    UIController.showTotalCalories(totalCalories);
+
+    UIController.clearInput();
+    UIController.clearEditState();
+    UIController.hideList();
   }
   
   return {
