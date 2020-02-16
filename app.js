@@ -50,6 +50,15 @@ const ItemController = (() => {
 
       return data.totalCalories;
     },
+    getItemById: id => {
+      return data.items.find(item => item.id === id);
+    },
+    setCurrentItem: item => {
+      data.currentItem = item;
+    },
+    getCurrentItem: () => {
+      return data.currentItem;
+    }
   };
 })();
 
@@ -60,6 +69,9 @@ const UIController = (() => {
   const UISelectors = {
     itemList: '#item-list',
     addBtn: '.add-btn',
+    updateBtn: '.update-btn',
+    deleteBtn: '.delete-btn',
+    backBtn: '.back-btn',
     itemNameInput: '#item-name',
     itemCaloriesInput: '#item-calories',
     totalCalories: '.total-calories', 
@@ -121,6 +133,27 @@ const UIController = (() => {
       document.querySelector(UISelectors.totalCalories)
         .textContent = totalCalories;
     },
+    clearEditState: () => {
+      UIController.clearInput();
+      document.querySelector(UISelectors.updateBtn).style.display = 'none';
+      document.querySelector(UISelectors.deleteBtn).style.display = 'none';
+      document.querySelector(UISelectors.backBtn).style.display = 'none';
+      document.querySelector(UISelectors.addBtn).style.display = 'inline';
+    },
+    addItemToForm: () => {
+      document.querySelector(UISelectors.itemNameInput).value = 
+        ItemController.getCurrentItem().name;
+      document.querySelector(UISelectors.itemCaloriesInput).value = 
+        ItemController.getCurrentItem().calories;
+      UIController.showEditState();
+    },
+    showEditState: () => {
+      UIController.clearInput();
+      document.querySelector(UISelectors.updateBtn).style.display = 'inline';
+      document.querySelector(UISelectors.deleteBtn).style.display = 'inline';
+      document.querySelector(UISelectors.backBtn).style.display = 'inline';
+      document.querySelector(UISelectors.addBtn).style.display = 'none';
+    },
   };
 })();
 
@@ -134,7 +167,26 @@ const App = ((ItemController, UIController) => {
 
     document.querySelector(UISelectors.addBtn).addEventListener(
       'click', itemAddSubmit);
+
+    document.querySelector(UISelectors.itemList).addEventListener(
+      'click', itemEditClick);
   };
+
+  const itemEditClick = evt => {
+    evt.preventDefault();
+
+    if (evt.target.classList.contains('edit-item')) {
+      const listId = evt.target.parentNode.parentNode.id;
+
+      const id = parseInt(listId.split('-')[1]);
+
+      const itemToEdit = ItemController.getItemById(id);
+
+      ItemController.setCurrentItem(itemToEdit);
+
+      UIController.addItemToForm();
+    }
+  }
 
   const itemAddSubmit = evt => {
     evt.preventDefault();
@@ -156,6 +208,8 @@ const App = ((ItemController, UIController) => {
   return {
     init: () => {
       console.log('Initializing app...');
+      UIController.clearEditState();
+
       const items = ItemController.getItems();
 
       if (items.length > 0) {
