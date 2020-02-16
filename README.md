@@ -1,0 +1,1 @@
+Simple project using vanilla JavaScript and Module Pattern to create a meal and calories tracker. 
